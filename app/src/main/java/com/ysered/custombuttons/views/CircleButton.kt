@@ -8,6 +8,7 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
+import com.ysered.custombuttons.R
 import com.ysered.custombuttons.utils.resolveAttribute
 
 
@@ -26,8 +27,8 @@ class CircleButton(
         val ON_CLICK_OFFSET = 2f
         val DEFAULT_SHADOW_RADIUS = 20f
         val DEFAULT_SHADOW_Y_OFFSET = 10f
-        val DEFAULT_BUTTON_BG_COLOR = Color.parseColor("#F44336")
-        val DEFAULT_BUTTON_SHADOW_COLOR = Color.parseColor("#EF9A9A")
+        val DEFAULT_BUTTON_BG_COLOR = Color.DKGRAY
+        val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
     }
 
     // points and dimens
@@ -40,17 +41,26 @@ class CircleButton(
     private var shadowY = DEFAULT_SHADOW_Y_OFFSET
     private val shadowRadius = DEFAULT_SHADOW_RADIUS
 
-    private var isMoveOnClick = true
+    // colors
+    private val circleColor: Int
+    private val shadowColor: Int
 
-    private val circlePaint = Paint().apply {
-        isAntiAlias = true
-        color = DEFAULT_BUTTON_BG_COLOR
-        style = Paint.Style.FILL_AND_STROKE
-    }
+    private val circlePaint: Paint
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setBackgroundResource(context.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless))
+        }
+
+        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleButton)
+        circleColor = a.getColor(R.styleable.CircleButton_circleColor, DEFAULT_BUTTON_BG_COLOR)
+        shadowColor = a.getColor(R.styleable.CircleButton_shadowColor, DEFAULT_BUTTON_SHADOW_COLOR)
+        a.recycle()
+
+        circlePaint = Paint().apply {
+            isAntiAlias = true
+            color = circleColor
+            style = Paint.Style.FILL_AND_STROKE
         }
 
         setLayerType(LAYER_TYPE_SOFTWARE, circlePaint)
@@ -58,19 +68,15 @@ class CircleButton(
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isShowShadow = false
-                    if (isMoveOnClick) {
-                        centerY += ON_CLICK_OFFSET
-                        shadowY = DEFAULT_SHADOW_Y_OFFSET / 2f
-                    }
+                    centerY += ON_CLICK_OFFSET
+                    shadowY = DEFAULT_SHADOW_Y_OFFSET / 2f
                     invalidate()
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     isShowShadow = true
-                    if (isMoveOnClick) {
-                        centerY -= ON_CLICK_OFFSET
-                        shadowY = DEFAULT_SHADOW_Y_OFFSET
-                    }
+                    centerY -= ON_CLICK_OFFSET
+                    shadowY = DEFAULT_SHADOW_Y_OFFSET
                     invalidate()
                     true
                 }
@@ -88,7 +94,7 @@ class CircleButton(
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        circlePaint.setShadowLayer(shadowRadius, 0f, shadowY, DEFAULT_BUTTON_SHADOW_COLOR)
+        circlePaint.setShadowLayer(shadowRadius, 0f, shadowY, shadowColor)
         canvas?.drawCircle(centerX, centerY, radius, circlePaint)
     }
 }
