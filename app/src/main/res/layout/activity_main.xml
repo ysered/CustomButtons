@@ -15,6 +15,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:iconResource="@drawable/ic_android_grey_300"
         app:shadowColor="@color/colorRed100" />
 
 </android.support.constraint.ConstraintLayout>

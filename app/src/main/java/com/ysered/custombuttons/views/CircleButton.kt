@@ -4,12 +4,15 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.drawable.Drawable
 import android.os.Build
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import com.ysered.custombuttons.R
-import com.ysered.custombuttons.utils.resolveAttribute
+import com.ysered.custombuttons.utils.extensions.resolveAttribute
+import com.ysered.custombuttons.utils.extensions.toPx
 
 
 class CircleButton(
@@ -24,17 +27,21 @@ class CircleButton(
 
     // defaults
     companion object {
-        val ON_CLICK_OFFSET = 2f
-        val DEFAULT_SHADOW_RADIUS = 20f
-        val DEFAULT_SHADOW_Y_OFFSET = 10f
-        val DEFAULT_BUTTON_BG_COLOR = Color.DKGRAY
-        val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
+        private val ON_CLICK_OFFSET = 2f
+        private val DEFAULT_SHADOW_RADIUS = 20f
+        private val DEFAULT_SHADOW_Y_OFFSET = 10f
+        private val DEFAULT_BUTTON_BG_COLOR = Color.DKGRAY
+        private val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
+        private val DEFAULT_ICON_WIDTH_DP = 58
+        private val DEFAULT_ICON_HEIGHT_DP = 58
     }
 
     // points and dimens
     private var centerX: Float = 0f
     private var centerY: Float = 0f
     private var radius: Float = 0f
+    private var iconWidth: Float = 0f
+    private var iconHeight: Float = 0f
 
     // shadow
     private var isShowShadow = true
@@ -47,14 +54,25 @@ class CircleButton(
 
     private val circlePaint: Paint
 
+    private var iconDrawable: Drawable? = null
+
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setBackgroundResource(context.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless))
         }
 
-        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleButton)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.CircleButton, defStyleAttr, 0)
         circleColor = a.getColor(R.styleable.CircleButton_circleColor, DEFAULT_BUTTON_BG_COLOR)
         shadowColor = a.getColor(R.styleable.CircleButton_shadowColor, DEFAULT_BUTTON_SHADOW_COLOR)
+        a.getResourceId(R.styleable.CircleButton_iconResource, -1).let { resource ->
+            if (resource != -1) {
+                iconWidth = context.toPx(DEFAULT_ICON_WIDTH_DP)
+                iconHeight = context.toPx(DEFAULT_ICON_HEIGHT_DP)
+                iconDrawable = ContextCompat.getDrawable(context, resource).apply {
+                    setBounds(0, 0, iconWidth.toInt(), iconHeight.toInt())
+                }
+            }
+        }
         a.recycle()
 
         circlePaint = Paint().apply {
@@ -88,7 +106,7 @@ class CircleButton(
     override fun onSizeChanged(newWidth: Int, newHeight: Int, oldWidth: Int, oldHeight: Int) {
         super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight)
         centerX = newWidth / 2f
-        centerY = newWidth / 2f
+        centerY = newHeight / 2f
         radius = newWidth / 2f - DEFAULT_SHADOW_RADIUS * 2
     }
 
@@ -96,5 +114,8 @@ class CircleButton(
         super.onDraw(canvas)
         circlePaint.setShadowLayer(shadowRadius, 0f, shadowY, shadowColor)
         canvas?.drawCircle(centerX, centerY, radius, circlePaint)
+        canvas?.translate(centerX - iconWidth / 2, centerY - iconHeight / 2)
+        iconDrawable?.draw(canvas)
+        //canvas?.translate(0f, 0f)
     }
 }

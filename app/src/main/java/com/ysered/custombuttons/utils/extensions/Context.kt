@@ -1,4 +1,4 @@
-package com.ysered.custombuttons.utils
+package com.ysered.custombuttons.utils.extensions
 
 import android.content.Context
 import android.util.TypedValue
@@ -9,3 +9,7 @@ fun Context.resolveAttribute(attribute: Int): Int {
     theme.resolveAttribute(attribute, typedValue, true)
     return typedValue.resourceId
 }
+
+
+fun Context.toPx(dp: Int): Float =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), resources.displayMetrics)
