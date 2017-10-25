@@ -36,7 +36,7 @@ class CircleButton(
         private val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
         private val DEFAULT_ICON_WIDTH_DP = 48
         private val DEFAULT_ICON_HEIGHT_DP = 48
-        private val DEFAULT_CIRCLE_COLOR_ANIM_DURATION_MS = 600L
+        private val DEFAULT_CIRCLE_COLOR_ANIM_DURATION_MS = 400L
     }
 
     // points and dimens
