@@ -32,8 +32,8 @@ class CircleButton(
         private val DEFAULT_SHADOW_Y_OFFSET = 10f
         private val DEFAULT_BUTTON_BG_COLOR = Color.DKGRAY
         private val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
-        private val DEFAULT_ICON_WIDTH_DP = 58
-        private val DEFAULT_ICON_HEIGHT_DP = 58
+        private val DEFAULT_ICON_WIDTH_DP = 48
+        private val DEFAULT_ICON_HEIGHT_DP = 48
     }
 
     // points and dimens
@@ -46,14 +46,13 @@ class CircleButton(
     // shadow
     private var isShowShadow = true
     private var shadowY = DEFAULT_SHADOW_Y_OFFSET
-    private val shadowRadius = DEFAULT_SHADOW_RADIUS
+    private var shadowRadius = DEFAULT_SHADOW_RADIUS
 
     // colors
     private val circleColor: Int
     private val shadowColor: Int
 
     private val circlePaint: Paint
-
     private var iconDrawable: Drawable? = null
 
     init {
@@ -64,6 +63,7 @@ class CircleButton(
         val a = context.obtainStyledAttributes(attrs, R.styleable.CircleButton, defStyleAttr, 0)
         circleColor = a.getColor(R.styleable.CircleButton_circleColor, DEFAULT_BUTTON_BG_COLOR)
         shadowColor = a.getColor(R.styleable.CircleButton_shadowColor, DEFAULT_BUTTON_SHADOW_COLOR)
+        shadowRadius = a.getDimension(R.styleable.CircleButton_shadowRadius, DEFAULT_SHADOW_RADIUS)
         a.getResourceId(R.styleable.CircleButton_iconResource, -1).let { resource ->
             if (resource != -1) {
                 iconWidth = context.toPx(DEFAULT_ICON_WIDTH_DP)
@@ -86,6 +86,7 @@ class CircleButton(
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isShowShadow = false
+                    shadowRadius /= 2
                     centerY += ON_CLICK_OFFSET
                     shadowY = DEFAULT_SHADOW_Y_OFFSET / 2f
                     invalidate()
@@ -93,6 +94,7 @@ class CircleButton(
                 }
                 MotionEvent.ACTION_UP -> {
                     isShowShadow = true
+                    shadowRadius *= 2
                     centerY -= ON_CLICK_OFFSET
                     shadowY = DEFAULT_SHADOW_Y_OFFSET
                     invalidate()

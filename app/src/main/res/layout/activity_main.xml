@@ -7,15 +7,16 @@
     tools:context="com.ysered.custombuttons.MainActivity">
 
     <com.ysered.custombuttons.views.CircleButton
-        android:layout_width="300dp"
-        android:layout_height="300dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         app:circleColor="@color/colorRed500"
+        app:iconResource="@drawable/ic_android_grey_300"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:iconResource="@drawable/ic_android_grey_300"
-        app:shadowColor="@color/colorRed100" />
+        app:shadowColor="@color/colorRed100"
+        app:shadowRadius="6dp" />
 
 </android.support.constraint.ConstraintLayout>
