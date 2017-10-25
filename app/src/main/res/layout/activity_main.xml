@@ -10,6 +10,7 @@
         android:layout_width="200dp"
         android:layout_height="200dp"
         app:circleColor="@color/colorRed500"
+        app:circleColorSelected="@color/colorRed400"
         app:iconResource="@drawable/ic_android_grey_300"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

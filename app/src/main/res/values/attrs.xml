@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="CircleButton">
         <attr name="circleColor" format="color" />
+        <attr name="circleColorSelected" format="color" />
         <attr name="iconResource" format="reference" />
         <attr name="shadowColor" format="color" />
         <attr name="shadowRadius" format="dimension" />
