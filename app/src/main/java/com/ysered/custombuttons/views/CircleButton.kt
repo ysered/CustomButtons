@@ -5,7 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -13,8 +12,8 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import com.ysered.custombuttons.R
 import com.ysered.custombuttons.utils.extensions.animateColorChange
-import com.ysered.custombuttons.utils.extensions.resolveResource
 import com.ysered.custombuttons.utils.extensions.toPx
+import com.ysered.custombuttons.utils.isInsideCircle
 
 
 class CircleButton(
@@ -36,7 +35,7 @@ class CircleButton(
         private val DEFAULT_BUTTON_SHADOW_COLOR = Color.GRAY
         private val DEFAULT_ICON_WIDTH_DP = 48
         private val DEFAULT_ICON_HEIGHT_DP = 48
-        private val DEFAULT_CIRCLE_COLOR_ANIM_DURATION_MS = 400L
+        private val DEFAULT_CIRCLE_COLOR_ANIM_DURATION_MS = 600L
     }
 
     // points and dimens
@@ -52,7 +51,7 @@ class CircleButton(
     private var shadowRadius = DEFAULT_SHADOW_RADIUS
 
     // colors
-    private var circleColor: Int
+    private var circleColor: Int = DEFAULT_BUTTON_BG_COLOR
     private val circleColorSelected: Int
     private val shadowColor: Int
 
@@ -61,11 +60,13 @@ class CircleButton(
 
     private val animationInterpolator = DecelerateInterpolator()
 
-    init {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setBackgroundResource(context.resolveResource(android.R.attr.selectableItemBackgroundBorderless))
-        }
+    private var touchMoveX: Float = 0f
+    private var touchMoveY: Float = 0f
+    private var isClicked = false
 
+    var onClickListener: (circleButton: CircleButton) -> Unit? = {}
+
+    init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.CircleButton, defStyleAttr, 0)
         circleColor = a.getColor(R.styleable.CircleButton_circleColor, DEFAULT_BUTTON_BG_COLOR)
         circleColorSelected = a.getColor(R.styleable.CircleButton_circleColorSelected, DEFAULT_BUTTON_BG_COLOR)
@@ -92,19 +93,31 @@ class CircleButton(
         setOnTouchListener({ _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    isShowShadow = false
-                    shadowRadius /= 2
-                    circleY += ON_CLICK_OFFSET
-                    shadowY = DEFAULT_SHADOW_Y_OFFSET / 2f
-                    animateCircleColor(circleColor, circleColorSelected)
+                    touchMoveX = event.x
+                    touchMoveY = event.y
+                    if (isInsideCircle(touchMoveX, touchMoveY, circleX, circleY, circleRadius)) {
+                        isClicked = true
+                        isShowShadow = false
+                        shadowRadius *= 2
+                        circleY += ON_CLICK_OFFSET
+                        shadowY = DEFAULT_SHADOW_Y_OFFSET * 2f
+                        animateCircleColor(circleColor, circleColorSelected)
+                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    isShowShadow = true
-                    shadowRadius *= 2
-                    circleY -= ON_CLICK_OFFSET
-                    shadowY = DEFAULT_SHADOW_Y_OFFSET
-                    animateCircleColor(circleColorSelected, circleColor)
+                    touchMoveX = event.x
+                    touchMoveY = event.y
+                    if (isClicked) {
+                        isClicked = false
+                        isShowShadow = true
+                        shadowRadius /= 2
+                        circleY -= ON_CLICK_OFFSET
+                        shadowY = DEFAULT_SHADOW_Y_OFFSET
+                        animateCircleColor(circleColorSelected, circleColor)
+                        if (isInsideCircle(touchMoveX, touchMoveY, circleX, circleY, circleRadius))
+                            onClickListener(this)
+                    }
                     true
                 }
                 else -> false
@@ -116,7 +129,7 @@ class CircleButton(
         super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight)
         circleX = newWidth / 2f
         circleY = newHeight / 2f
-        circleRadius = newWidth / 2f - DEFAULT_SHADOW_RADIUS * 2
+        circleRadius = newWidth / 2f - (DEFAULT_SHADOW_Y_OFFSET * 3 + DEFAULT_SHADOW_RADIUS)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -125,7 +138,6 @@ class CircleButton(
         canvas?.drawCircle(circleX, circleY, circleRadius, circlePaint)
         canvas?.translate(circleX - iconWidth / 2, circleY - iconHeight / 2)
         iconDrawable?.draw(canvas)
-        //canvas?.translate(0f, 0f)
     }
 
     private fun animateCircleColor(startColor: Int, endColor: Int) {
