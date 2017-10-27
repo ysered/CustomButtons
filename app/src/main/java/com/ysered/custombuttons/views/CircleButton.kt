@@ -60,8 +60,8 @@ class CircleButton(
 
     private val animationInterpolator = DecelerateInterpolator()
 
-    private var touchMoveX: Float = 0f
-    private var touchMoveY: Float = 0f
+    private var lastX: Float = 0f
+    private var lastY: Float = 0f
     private var isClicked = false
 
     var onClickListener: (circleButton: CircleButton) -> Unit? = {}
@@ -93,9 +93,9 @@ class CircleButton(
         setOnTouchListener({ _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    touchMoveX = event.x
-                    touchMoveY = event.y
-                    if (isInsideCircle(touchMoveX, touchMoveY, circleX, circleY, circleRadius)) {
+                    lastX = event.x
+                    lastY = event.y
+                    if (isInsideCircle(lastX, lastY, circleX, circleY, circleRadius)) {
                         isClicked = true
                         isShowShadow = false
                         shadowRadius *= 2
@@ -106,8 +106,8 @@ class CircleButton(
                     true
                 }
                 MotionEvent.ACTION_UP -> {
-                    touchMoveX = event.x
-                    touchMoveY = event.y
+                    lastX = event.x
+                    lastY = event.y
                     if (isClicked) {
                         isClicked = false
                         isShowShadow = true
@@ -115,7 +115,7 @@ class CircleButton(
                         circleY -= ON_CLICK_OFFSET
                         shadowY = DEFAULT_SHADOW_Y_OFFSET
                         animateCircleColor(circleColorSelected, circleColor)
-                        if (isInsideCircle(touchMoveX, touchMoveY, circleX, circleY, circleRadius))
+                        if (isInsideCircle(lastX, lastY, circleX, circleY, circleRadius))
                             onClickListener(this)
                     }
                     true
